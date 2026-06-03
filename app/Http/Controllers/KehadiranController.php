@@ -32,14 +32,14 @@ class KehadiranController extends Controller
                         ->when($lokasiEvent != 'semua', function($query) use ($lokasiEvent) {
                             return $query->where('lokasi_event', $lokasiEvent);
                         })
-                        ->orderBy('id', 'desc')
+                        ->orderBy('id', 'asc')
                         ->get();
 
         $daftarAgens = DaftarAgen::where('status', 1)
                         ->when($lokasiEvent != 'semua', function($query) use ($lokasiEvent) {
                             return $query->where('lokasi_event', $lokasiEvent);
                         })
-                        ->orderBy('id', 'desc')
+                        ->orderBy('id', 'asc')
                         ->get();
         
         // Gabungkan data dengan grouping untuk duplikat
