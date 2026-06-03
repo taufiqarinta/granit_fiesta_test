@@ -460,7 +460,7 @@ class FormOrderController extends Controller
         
         $validated = $request->validate([
             'nama_agen' => 'required|exists:daftar_agen,id',
-            'nama_toko' => 'required|exists:daftar_toko,id',
+            'nama_toko' => 'required',
             'nama_sales' => 'nullable|string|max:255',
             'lokasi_event' => 'required|string|max:255',
             'kota' => 'required|string|max:255',
