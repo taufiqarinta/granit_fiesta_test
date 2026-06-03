@@ -1477,15 +1477,18 @@ class DaftarTokoController extends Controller
         $tokos = collect();
         
         if ($selectedLokasi && $selectedLokasi != 'semua') {
-            $tokos = DaftarToko::where('lokasi_event', $selectedLokasi)
+            $tokosRaw = DaftarToko::where('lokasi_event', $selectedLokasi)
                 ->where('status', 1) // hanya toko aktif
                 ->orderBy('nama_toko', 'asc')
                 ->get();
+            
+            // Grouping data toko yang sama
+            $tokos = $this->groupSimilarToko($tokosRaw, $selectedLokasi);
         }
         
         return view('daftartoko.generate-qr', compact('lokasiEvents', 'selectedLokasi', 'tokos'));
     }
-    
+
     /**
      * Export QR code ke PDF
      */
@@ -1497,20 +1500,31 @@ class DaftarTokoController extends Controller
             return redirect()->back()->with('error', 'Silakan pilih lokasi event terlebih dahulu');
         }
         
-        $tokos = DaftarToko::where('lokasi_event', $lokasiEvent)
+        $tokosRaw = DaftarToko::where('lokasi_event', $lokasiEvent)
             ->where('status', 1)
             ->orderBy('nama_toko', 'asc')
             ->get();
         
-        if ($tokos->isEmpty()) {
+        if ($tokosRaw->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada toko aktif di lokasi event yang dipilih');
         }
         
-        // Generate QR Code sebagai base64 image untuk setiap toko
+        // Grouping data toko yang sama
+        $tokos = $this->groupSimilarToko($tokosRaw, $lokasiEvent);
+        
+        if ($tokos->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data toko setelah grouping');
+        }
+        
+        // Generate QR Code sebagai base64 image untuk setiap toko yang sudah di-group
         foreach ($tokos as $toko) {
-            // Generate QR code sebagai SVG lalu konversi ke base64
+            // Generate QR code menggunakan kode_toko dari toko dengan ID terkecil
             $qrCodeSvg = QrCode::format('svg')->size(150)->generate($toko->kode_toko);
             $toko->qr_code_base64 = 'data:image/svg+xml;base64,' . base64_encode($qrCodeSvg);
+            
+            // Tambahkan informasi jumlah duplikat yang digabung
+            $toko->jumlah_duplikat = $toko->duplicate_count ?? 1;
+            $toko->all_kode_toko = $toko->all_kode_toko ?? [$toko->kode_toko];
         }
         
         $lokasiEventName = $lokasiEvent;
@@ -1520,6 +1534,59 @@ class DaftarTokoController extends Controller
         $pdf->setPaper('a4', 'portrait');
         
         return $pdf->download('QR-Code_Toko_' . $lokasiEvent . '_' . $date . '.pdf');
+    }
+    
+    private function groupSimilarToko($tokosRaw, $lokasiEvent)
+    {
+        $groupedData = [];
+        
+        foreach ($tokosRaw as $toko) {
+            // Buat unique key berdasarkan kriteria yang ditentukan
+            $uniqueKey = strtolower(trim($toko->nama_toko)) . '|' . 
+                        strtolower(trim($toko->pic)) . '|' . 
+                        strtolower(trim($toko->nomor_pic)) . '|' . 
+                        strtolower(trim($toko->kota)) . '|' . 
+                        strtolower(trim($lokasiEvent));
+            
+            if (isset($groupedData[$uniqueKey])) {
+                // Jika sudah ada, update data dengan ID terkecil
+                $existingData = $groupedData[$uniqueKey];
+                
+                // Simpan semua kode_toko yang digabung
+                if (!isset($existingData->all_kode_toko)) {
+                    $existingData->all_kode_toko = [$existingData->kode_toko];
+                }
+                $existingData->all_kode_toko[] = $toko->kode_toko;
+                
+                // Jika ID toko saat ini lebih kecil, update data utama
+                if ($toko->id < $existingData->id) {
+                    $existingData->id = $toko->id;
+                    $existingData->kode_toko = $toko->kode_toko;
+                    // Update field lain jika perlu
+                    $existingData->nama_toko = $toko->nama_toko;
+                    $existingData->pic = $toko->pic;
+                    $existingData->nomor_pic = $toko->nomor_pic;
+                    $existingData->kota = $toko->kota;
+                    $existingData->alamat = $toko->alamat;
+                }
+                
+                // Increment counter duplikat
+                $existingData->duplicate_count = ($existingData->duplicate_count ?? 1) + 1;
+                
+                $groupedData[$uniqueKey] = $existingData;
+            } else {
+                // Data baru, tambahkan properti tambahan
+                $toko->duplicate_count = 1;
+                $toko->all_kode_toko = [$toko->kode_toko];
+                $groupedData[$uniqueKey] = $toko;
+            }
+        }
+        
+        // Konversi ke collection dan urutkan berdasarkan nama_toko
+        $result = collect(array_values($groupedData));
+        $result = $result->sortBy('nama_toko')->values();
+        
+        return $result;
     }
 
     public function updateHotel(Request $request)
