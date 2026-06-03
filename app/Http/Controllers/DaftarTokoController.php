@@ -1535,7 +1535,7 @@ class DaftarTokoController extends Controller
         
         return $pdf->download('QR-Code_Toko_' . $lokasiEvent . '_' . $date . '.pdf');
     }
-    
+
     private function groupSimilarToko($tokosRaw, $lokasiEvent)
     {
         $groupedData = [];
@@ -1552,38 +1552,53 @@ class DaftarTokoController extends Controller
                 // Jika sudah ada, update data dengan ID terkecil
                 $existingData = $groupedData[$uniqueKey];
                 
-                // Simpan semua kode_toko yang digabung
-                if (!isset($existingData->all_kode_toko)) {
-                    $existingData->all_kode_toko = [$existingData->kode_toko];
+                // Simpan semua kode_toko yang digabung (gunakan array biasa)
+                if (!isset($existingData['all_kode_toko'])) {
+                    $existingData['all_kode_toko'] = [$existingData['kode_toko']];
                 }
-                $existingData->all_kode_toko[] = $toko->kode_toko;
+                $existingData['all_kode_toko'][] = $toko->kode_toko;
                 
                 // Jika ID toko saat ini lebih kecil, update data utama
-                if ($toko->id < $existingData->id) {
-                    $existingData->id = $toko->id;
-                    $existingData->kode_toko = $toko->kode_toko;
-                    // Update field lain jika perlu
-                    $existingData->nama_toko = $toko->nama_toko;
-                    $existingData->pic = $toko->pic;
-                    $existingData->nomor_pic = $toko->nomor_pic;
-                    $existingData->kota = $toko->kota;
-                    $existingData->alamat = $toko->alamat;
+                if ($toko->id < $existingData['id']) {
+                    $existingData['id'] = $toko->id;
+                    $existingData['kode_toko'] = $toko->kode_toko;
+                    $existingData['nama_toko'] = $toko->nama_toko;
+                    $existingData['pic'] = $toko->pic;
+                    $existingData['nomor_pic'] = $toko->nomor_pic;
+                    $existingData['kota'] = $toko->kota;
+                    $existingData['alamat'] = $toko->alamat;
+                    $existingData['provinsi'] = $toko->provinsi;
                 }
                 
                 // Increment counter duplikat
-                $existingData->duplicate_count = ($existingData->duplicate_count ?? 1) + 1;
+                $existingData['duplicate_count'] = ($existingData['duplicate_count'] ?? 1) + 1;
                 
                 $groupedData[$uniqueKey] = $existingData;
             } else {
-                // Data baru, tambahkan properti tambahan
-                $toko->duplicate_count = 1;
-                $toko->all_kode_toko = [$toko->kode_toko];
-                $groupedData[$uniqueKey] = $toko;
+                // Data baru, konversi ke array
+                $groupedData[$uniqueKey] = [
+                    'id' => $toko->id,
+                    'kode_toko' => $toko->kode_toko,
+                    'nama_toko' => $toko->nama_toko,
+                    'pic' => $toko->pic,
+                    'nomor_pic' => $toko->nomor_pic,
+                    'alamat' => $toko->alamat,
+                    'provinsi' => $toko->provinsi,
+                    'kota' => $toko->kota,
+                    'lokasi_event' => $toko->lokasi_event,
+                    'status' => $toko->status,
+                    'duplicate_count' => 1,
+                    'all_kode_toko' => [$toko->kode_toko]
+                ];
             }
         }
         
-        // Konversi ke collection dan urutkan berdasarkan nama_toko
-        $result = collect(array_values($groupedData));
+        // Konversi ke collection object (ubah array menjadi object)
+        $result = collect(array_values($groupedData))->map(function($item) {
+            return (object) $item;
+        });
+        
+        // Urutkan berdasarkan nama_toko
         $result = $result->sortBy('nama_toko')->values();
         
         return $result;
