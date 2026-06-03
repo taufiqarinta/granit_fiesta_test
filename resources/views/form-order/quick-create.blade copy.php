@@ -899,9 +899,6 @@ function doLookupAgen(kode) {
     kode = (kode || '').trim();
     if (!kode) return Promise.reject('Kode agen kosong');
     
-    // RESET ORDER STATUS SEBELUM MENCARI AGEN BARU
-    resetOrderForm();
-    
     return $.get('{{ url('/api/lookup-agen-by-kode') }}', { kode_agen: kode })
         .done(function(res) {
             if (res.success) {
@@ -925,15 +922,6 @@ function doLookupAgen(kode) {
             resetOrderForm();
         });
 }
-
-$('#kode_toko_input').on('change', function() {
-    // If both agen and toko are selected, check existing order
-    if ($('#kode_agen_input').val().trim() && $(this).val().trim()) {
-        setTimeout(function() {
-            checkExistingOrder();
-        }, 300);
-    }
-});
 
 // New function to check existing order
 function checkExistingOrder() {
@@ -980,9 +968,11 @@ function checkExistingOrder() {
             $('#order_id').val(currentOrderId);
             
             // CRITICAL: Set the pic_old and nomor_pic_old from existing order data
+            // This ensures the update can find the existing toko records
             if (res.data.pic_old) {
                 $('#pic_old_hidden').val(res.data.pic_old);
                 $('#nomor_pic_old_hidden').val(res.data.nomor_pic_old);
+                // Also update the display fields if needed
                 $('#pic').val(res.data.pic);
                 $('#no_hp').val(res.data.no_hp);
             }
@@ -1006,14 +996,6 @@ function checkExistingOrder() {
                     $this.val(res.data.details[masterTargetId]);
                 } else {
                     $this.val(0);
-                }
-                
-                // Trigger recalculation
-                if ($this.attr('id')) {
-                    const targetId = $this.attr('id').replace('jumlah_', '');
-                    if (window.calculateRowTotal) {
-                        window.calculateRowTotal(targetId);
-                    }
                 }
             });
             
@@ -1056,9 +1038,6 @@ function checkExistingOrder() {
                     $('html, body').animate({
                         scrollTop: $('#scanForm').offset().top - 100
                     }, 500);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // User cancelled editing - reset to create mode
-                    resetOrderForm();
                 }
             });
             
@@ -1068,15 +1047,30 @@ function checkExistingOrder() {
             
         } else if (res.success && !res.exists) {
             // No existing order - normal flow
-            // PASTIKAN RESET KE CREATE MODE
-            resetOrderForm();
+            isEditingOrder = false;
+            currentOrderId = null;
+            if ($('#order_id').length) {
+                $('#order_id').remove();
+            }
             
-            // Optional: Show success notification
+            // Reset paket quantities to 0
+            $('.paket-qty').val(0);
+            
+            // Clear signatures
+            clearTTD('pic');
+            clearTTD('agen');
+            clearTTD('kobin');
+            $('#wrap-pic, #wrap-agen, #wrap-kobin').removeClass('has-sig');
+            
+            // Reset submit button
+            $('.btn-success').html('✔ Simpan Order');
+            $('.btn-success').removeClass('btn-warning').addClass('btn-success');
+            
             // Swal.fire({
             //     icon: 'success',
             //     title: '✨ Data Baru',
             //     text: res.message || 'Data order tidak ditemukan. Silakan buat order baru.',
-            //     timer: 1500,
+            //     timer: 2500,
             //     showConfirmButton: false
             // });
         }
@@ -1157,52 +1151,16 @@ document.head.appendChild(style);
 
 // Reset order form function
 function resetOrderForm() {
-    // Reset status editing
     isEditingOrder = false;
     currentOrderId = null;
-    
-    // Remove order_id hidden input if exists
     if ($('#order_id').length) {
         $('#order_id').remove();
     }
-    
-    // Reset paket quantities to 0
-    $('.paket-qty').each(function() {
-        $(this).val(0);
-        // Trigger change event untuk update total
-        if ($(this).attr('id')) {
-            const targetId = $(this).attr('id').replace('jumlah_', '');
-            if (window.calculateRowTotal) {
-                window.calculateRowTotal(targetId);
-            }
-        }
-    });
-    
-    // Reset total displays
-    if (window.calculateGrandTotal) {
-        window.calculateGrandTotal();
-    }
-    
-    // Clear signatures
+    $('.paket-qty').val(0);
     clearTTD('pic');
     clearTTD('agen');
     clearTTD('kobin');
-    
-    // Remove has-sig class from wraps
-    $('#wrap-pic, #wrap-agen, #wrap-kobin').removeClass('has-sig');
-    
-    // Reset submit button to normal state
     $('.btn-success').html('✔ Simpan Order');
-    $('.btn-success').removeClass('btn-warning').addClass('btn-success');
-    
-    // Reset nama_sales field (optional, bisa diisi ulang nanti)
-    $('#nama_sales').val('');
-    
-    // Clear any stored pic_old and nomor_pic_old from previous order
-    $('#pic_old_hidden').val('');
-    $('#nomor_pic_old_hidden').val('');
-    
-    console.log('Order form reset to create mode');
 }
 
 // Update submit handler to show appropriate message
