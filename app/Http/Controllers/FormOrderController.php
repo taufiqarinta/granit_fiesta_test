@@ -454,13 +454,323 @@ class FormOrderController extends Controller
     }
 
     // Update store method untuk handle create OR update
+    // public function store(Request $request)
+    // {
+    //     $user = auth()->user();
+        
+    //     $validated = $request->validate([
+    //         'nama_agen' => 'required|exists:daftar_agen,id',
+    //         'nama_toko' => 'required',
+    //         'nama_sales' => 'nullable|string|max:255',
+    //         'lokasi_event' => 'required|string|max:255',
+    //         'kota' => 'required|string|max:255',
+    //         'no_hp' => 'required|string|max:255',
+    //         'brand' => 'required|string',
+    //         'ttd_pic' => 'nullable|string',
+    //         'ttd_agen' => 'nullable|string',
+    //         'ttd_kobin_tiles' => 'nullable|string',
+    //         'targets' => 'required|array',
+    //         'targets.*.master_target_id' => 'required|exists:master_targets,id',
+    //         'targets.*.jumlah_pengambilan' => 'required|integer|min:0',
+    //         'pic_old' => 'nullable|string|max:255',
+    //         'nomor_pic_old' => 'nullable|string|max:255',
+    //         'order_id' => 'nullable|exists:form_orders,id',
+    //         'source' => 'nullable|string|in:quick-scan,create-page', // Tambahkan validasi source
+    //     ]);
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $agen = DaftarAgen::findOrFail($validated['nama_agen']);
+    //         $tokoById = DaftarToko::findOrFail($validated['nama_toko']);
+            
+    //         // CHECK IF UPDATE OR CREATE
+    //         $isUpdate = !empty($validated['order_id']);
+            
+    //         // Cari toko yang sesuai
+    //         if ($isUpdate) {
+    //             // Untuk UPDATE: cari berdasarkan data existing order
+    //             $existingOrderForUpdate = FormOrder::findOrFail($validated['order_id']);
+                
+    //             $tokos = DaftarToko::where('nama_toko', $existingOrderForUpdate->nama_toko)
+    //                 ->where('lokasi_event', $existingOrderForUpdate->lokasi_event)
+    //                 ->where('kota', $existingOrderForUpdate->kota)
+    //                 ->where(function($query) use ($existingOrderForUpdate) {
+    //                     $picOld = $existingOrderForUpdate->pic ?? '';
+    //                     $nomorPicOld = $existingOrderForUpdate->no_hp ?? '';
+                        
+    //                     if (!empty($picOld) && !empty($nomorPicOld)) {
+    //                         $query->where('pic', $picOld)
+    //                             ->where('nomor_pic', $nomorPicOld);
+    //                     } else {
+    //                         $query->where(function($q) use ($picOld) {
+    //                             $q->where('pic', $picOld)
+    //                                 ->orWhereNull('pic')
+    //                                 ->orWhere('pic', '');
+    //                         })->where(function($q) use ($nomorPicOld) {
+    //                             $q->where('nomor_pic', $nomorPicOld)
+    //                                 ->orWhereNull('nomor_pic')
+    //                                 ->orWhere('nomor_pic', '');
+    //                         });
+    //                     }
+    //                 })
+    //                 ->get();
+                    
+    //             if ($tokos->isEmpty()) {
+    //                 // Fallback: cari berdasarkan ID toko dari request
+    //                 $tokos = collect([$tokoById]);
+    //             }
+    //         } else {
+    //             // Untuk CREATE: cari berdasarkan ID toko yang sudah discan
+    //             $tokos = collect([$tokoById]);
+    //         }
+
+    //         if ($tokos->isEmpty()) {
+    //             \Log::error('Toko tidak ditemukan', [
+    //                 'nama_toko' => $tokoById->nama_toko,
+    //                 'lokasi_event' => $validated['lokasi_event'],
+    //                 'kota' => $validated['kota'],
+    //                 'pic_old' => $validated['pic_old'] ?? null,
+    //                 'nomor_pic_old' => $validated['nomor_pic_old'] ?? null,
+    //                 'is_update' => $isUpdate,
+    //                 'toko_id' => $tokoById->id
+    //             ]);
+                
+    //             if ($request->expectsJson() || $request->ajax()) {
+    //                 return response()->json([
+    //                     'success' => false,
+    //                     'message' => 'Data toko tidak ditemukan dengan kriteria yang diberikan!'
+    //                 ], 422);
+    //             }
+
+    //             return redirect()->back()
+    //                 ->with('error', 'Data toko tidak ditemukan dengan kriteria yang diberikan!')
+    //                 ->withInput();
+    //         }
+
+    //         $toko = $tokos->first();
+
+    //         // UPDATE DATA TOKO
+    //         if ($isUpdate) {
+    //             DaftarToko::where('id', $toko->id)->update([
+    //                 'pic' => $request->pic,
+    //                 'nomor_pic' => $request->no_hp,
+    //                 'nama_sales' => $validated['nama_sales']
+    //             ]);
+    //         } else {
+    //             DaftarToko::where('id', $toko->id)->update([
+    //                 'pic' => $request->pic,
+    //                 'nomor_pic' => $request->no_hp,
+    //                 'lokasi_event' => $validated['lokasi_event'],
+    //                 'kota' => $validated['kota'],
+    //             ]);
+                
+    //             DaftarToko::where('kode_toko', $toko->kode_toko)
+    //                 ->where('id', '!=', $toko->id)
+    //                 ->update([
+    //                     'pic' => $request->pic,
+    //                     'nomor_pic' => $request->no_hp,
+    //                     'lokasi_event' => $validated['lokasi_event'],
+    //                     'kota' => $validated['kota'],
+    //                 ]);
+    //         }
+
+    //         // CREATE OR UPDATE FORM ORDER
+    //         $totalGrandPoint = 0;
+    //         $totalKupon = 0;
+            
+    //         if ($isUpdate) {
+    //             $formOrder = FormOrder::findOrFail($validated['order_id']);
+                
+    //             $formOrder->update([
+    //                 'nama_sales' => $validated['nama_sales'],
+    //                 'brand' => $request->brand,
+    //                 'pic' => $request->pic,
+    //                 'no_hp' => $request->no_hp,
+    //                 'kota' => $request->kota,
+    //                 'ttd_pic' => $request->ttd_pic,
+    //                 'ttd_agen' => $request->ttd_agen,
+    //                 'ttd_kobin_tiles' => $request->ttd_kobin_tiles,
+    //             ]);
+                
+    //             FormOrderDetail::where('form_order_id', $formOrder->id)->delete();
+    //             Voucher::where('form_order_id', $formOrder->id)->delete();
+                
+    //         } else {
+    //             $formOrder = FormOrder::create([
+    //                 'tanggal_order' => now()->format('Y-m-d'),
+    //                 'kode_agen' => $agen->kode_agen,
+    //                 'nama_agen' => $agen->nama_agen,
+    //                 'kode_toko' => $toko->kode_toko,
+    //                 'nama_toko' => $toko->nama_toko,
+    //                 'nama_sales' => $validated['nama_sales'],
+    //                 'lokasi_event' => $validated['lokasi_event'],
+    //                 'brand' => $request->brand,
+    //                 'pic' => $request->pic,
+    //                 'no_hp' => $request->no_hp,
+    //                 'kota' => $request->kota,
+    //                 'ttd_pic' => $request->ttd_pic,
+    //                 'ttd_agen' => $request->ttd_agen,
+    //                 'ttd_kobin_tiles' => $request->ttd_kobin_tiles,
+    //                 'total_point' => 0,
+    //             ]);
+    //         }
+            
+    //         // Create new details
+    //         foreach ($validated['targets'] as $targetData) {
+    //             $masterTarget = MasterTarget::findOrFail($targetData['master_target_id']);
+    //             $jumlahPengambilan = $targetData['jumlah_pengambilan'] ?? 0;
+                
+    //             if ($jumlahPengambilan > 0) {
+    //                 $totalPoint = $masterTarget->point * $jumlahPengambilan;
+    //                 $totalGrandPoint += $totalPoint;
+                    
+    //                 $kuponPerPaket = $masterTarget->kupon ?? 0;
+    //                 $totalKupon += $kuponPerPaket * $jumlahPengambilan;
+                    
+    //                 FormOrderDetail::create([
+    //                     'form_order_id' => $formOrder->id,
+    //                     'master_target_id' => $masterTarget->id,
+    //                     'paket' => $masterTarget->target,
+    //                     'point_per_paket' => $masterTarget->point,
+    //                     'jumlah_pengambilan' => $jumlahPengambilan,
+    //                     'total_point' => $totalPoint,
+    //                     'kupon_per_paket' => $kuponPerPaket,
+    //                     'total_kupon' => $kuponPerPaket * $jumlahPengambilan,
+    //                 ]);
+    //             }
+    //         }
+            
+    //         $formOrder->update([
+    //             'total_point' => $totalGrandPoint,
+    //             'total_kupon' => $totalKupon
+    //         ]);
+            
+    //         // GENERATE VOUCHER
+    //         $kodeUnik = null;
+    //         if ($totalKupon > 0) {
+    //             $kodeUnik = $this->generateKodeUnik();
+                
+    //             for ($i = 0; $i < $totalKupon; $i++) {
+    //                 $nomorVoucher = $this->generateNomorVoucher();
+                    
+    //                 DB::table('vouchers')->insert([
+    //                     'kode_unik' => $kodeUnik,
+    //                     'form_order_id' => $formOrder->id,
+    //                     'nomor_voucher' => $nomorVoucher,
+    //                     'kode_toko' => $toko->kode_toko,
+    //                     'nama_toko' => $toko->nama_toko,
+    //                     'nama_pic' => $request->pic,
+    //                     'no_hp' => $request->no_hp,
+    //                     'lokasi_event' => $validated['lokasi_event'],
+    //                     'status' => 0,
+    //                     'created_at' => now(),
+    //                     'updated_at' => now(),
+    //                 ]);
+    //             }
+                
+    //             $formOrder->update([
+    //                 'jumlah_voucher' => $totalKupon,
+    //                 'kode_unik_voucher' => $kodeUnik
+    //             ]);
+    //         }
+            
+    //         DB::commit();
+            
+    //         // Log aktivitas
+    //         try {
+    //             $logUsername = auth()->check()
+    //                 ? auth()->user()->name
+    //                 : trim(implode(' - ', array_filter([
+    //                     $formOrder->kode_toko ?? '',
+    //                     $formOrder->nama_toko ?? '',
+    //                     $formOrder->pic ?? '',
+    //                 ])));
+                    
+    //             $aksi = $isUpdate ? 'Update' : 'Tambah';
+                
+    //             LogAktivitas::create([
+    //                 'user_id' => auth()->id() ?? null,
+    //                 'username' => $logUsername !== '' ? $logUsername : 'guest',
+    //                 'aksi' => $aksi,
+    //                 'fitur' => 'Form Order',
+    //                 'deskripsi' => ($isUpdate ? "Mengupdate" : "Menyimpan") . " form order untuk toko {$formOrder->nama_toko} dengan agen {$formOrder->nama_agen}",
+    //                 'ip_address' => $request->ip(),
+    //                 'device' => Browser::browserName() . ' on ' . Browser::platformName(),
+    //                 'created_at' => now(),
+    //             ]);
+    //         } catch (\Exception $e) {
+    //             \Log::error('Gagal menyimpan log aktivitas: ' . $e->getMessage());
+    //         }
+            
+    //         $successMessage = $isUpdate ? 'Form order berhasil diupdate!' : 'Form order berhasil disimpan!';
+    //         $successMessage .= " Data toko berhasil diupdate.";
+            
+    //         if ($totalKupon > 0) {
+    //             $successMessage .= " Toko mendapatkan $totalKupon voucher undian.";
+    //             if (!$isUpdate) {
+    //                 $successMessage .= " Kode Unik: $kodeUnik";
+    //             }
+    //         }
+            
+    //         // Tentukan redirect berdasarkan source parameter
+    //         $source = $request->input('source', 'create-page');
+
+    //         if ($request->expectsJson() || $request->ajax()) {
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'message' => $successMessage,
+    //                 'kode_unik' => $kodeUnik ?? ($formOrder->kode_unik_voucher ?? null),
+    //                 'jumlah_voucher' => $totalKupon ?? 0,
+    //                 'is_update' => $isUpdate,
+    //                 'source' => $source,
+    //                 'redirect_url' => $source === 'quick-scan' 
+    //                     ? route('form-order.success', [  // Quick scan ke success page
+    //                         'kode_unik' => $kodeUnik ?? ($formOrder->kode_unik_voucher ?? ''),
+    //                         'jumlah_voucher' => $totalKupon ?? 0,
+    //                     ])
+    //                     : route('form-order.index'),  // Create page ke index
+    //                 'form_order_id' => $formOrder->id,
+    //                 'nama_toko' => $formOrder->nama_toko,
+    //                 'nama_agen' => $formOrder->nama_agen,
+    //             ]);
+    //         }
+
+    //         // Non-AJAX redirect
+    //         if ($source === 'quick-scan') {
+    //             return redirect()->route('form-order.success', [
+    //                 'kode_unik' => $kodeUnik ?? ($formOrder->kode_unik_voucher ?? ''),
+    //                 'jumlah_voucher' => $totalKupon ?? 0,
+    //             ]);
+    //         }
+
+    //         // Create page redirect ke index
+    //         return redirect()->route('form-order.index')
+    //             ->with('success', $successMessage);
+            
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+            
+    //         if ($request->expectsJson() || $request->ajax()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+    //             ], 422);
+    //         }
+            
+    //         return redirect()->back()
+    //             ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+    //             ->withInput();
+    //     }
+    // }
+
     public function store(Request $request)
     {
         $user = auth()->user();
         
         $validated = $request->validate([
             'nama_agen' => 'required|exists:daftar_agen,id',
-            'nama_toko' => 'required',
+            'nama_toko' => 'required', // Hapus validasi exists, kita akan proses manual
             'nama_sales' => 'nullable|string|max:255',
             'lokasi_event' => 'required|string|max:255',
             'kota' => 'required|string|max:255',
@@ -475,89 +785,89 @@ class FormOrderController extends Controller
             'pic_old' => 'nullable|string|max:255',
             'nomor_pic_old' => 'nullable|string|max:255',
             'order_id' => 'nullable|exists:form_orders,id',
-            'source' => 'nullable|string|in:quick-scan,create-page', // Tambahkan validasi source
+            'source' => 'nullable|string|in:quick-scan,create-page',
         ]);
 
         try {
             DB::beginTransaction();
 
             $agen = DaftarAgen::findOrFail($validated['nama_agen']);
-            $tokoById = DaftarToko::findOrFail($validated['nama_toko']);
+            
+            // ========== PROSES NAMA_TOKO (Support ID dan String) ==========
+            $toko = null;
+            $isNumericToko = is_numeric($validated['nama_toko']);
+            
+            if ($isNumericToko) {
+                // CASE 1: Create page mengirim ID
+                $toko = DaftarToko::find($validated['nama_toko']);
+                if (!$toko) {
+                    throw new \Exception('Data toko tidak ditemukan dengan ID: ' . $validated['nama_toko']);
+                }
+            } else {
+                // CASE 2: Quick scan mengirim nama toko (string)
+                // Cari toko berdasarkan kriteria
+                $tokoQuery = DaftarToko::where('nama_toko', $validated['nama_toko'])
+                    ->where('lokasi_event', $validated['lokasi_event'])
+                    ->where('kota', $validated['kota']);
+                
+                // Gunakan pic_old dan nomor_pic_old jika ada
+                if (!empty($validated['pic_old']) && !empty($validated['nomor_pic_old'])) {
+                    $tokoQuery->where('pic', $validated['pic_old'])
+                        ->where('nomor_pic', $validated['nomor_pic_old']);
+                } else {
+                    // Fallback: cari berdasarkan pic dan nomor_pic dari request
+                    $tokoQuery->where(function($q) use ($validated) {
+                        $q->where('pic', $validated['pic'] ?? '')
+                            ->orWhereNull('pic')
+                            ->orWhere('pic', '');
+                    })->where(function($q) use ($validated) {
+                        $q->where('nomor_pic', $validated['no_hp'] ?? '')
+                            ->orWhereNull('nomor_pic')
+                            ->orWhere('nomor_pic', '');
+                    });
+                }
+                
+                $tokos = $tokoQuery->get();
+                
+                if ($tokos->isEmpty()) {
+                    // Jika tidak ditemukan, coba cari berdasarkan nama_toko saja (looser match)
+                    $tokos = DaftarToko::where('nama_toko', $validated['nama_toko'])
+                        ->where('lokasi_event', $validated['lokasi_event'])
+                        ->get();
+                }
+                
+                if ($tokos->isEmpty()) {
+                    \Log::error('Toko tidak ditemukan untuk quick-scan', [
+                        'nama_toko' => $validated['nama_toko'],
+                        'lokasi_event' => $validated['lokasi_event'],
+                        'kota' => $validated['kota'],
+                        'pic_old' => $validated['pic_old'] ?? null,
+                        'nomor_pic_old' => $validated['nomor_pic_old'] ?? null,
+                    ]);
+                    throw new \Exception('Data toko tidak ditemukan dengan kriteria yang diberikan!');
+                }
+                
+                $toko = $tokos->first();
+            }
+            
+            // Validasi tambahan: pastikan toko ditemukan
+            if (!$toko) {
+                throw new \Exception('Data toko tidak ditemukan!');
+            }
             
             // CHECK IF UPDATE OR CREATE
             $isUpdate = !empty($validated['order_id']);
             
-            // Cari toko yang sesuai
+            // UPDATE DATA TOKO (jika diperlukan)
             if ($isUpdate) {
-                // Untuk UPDATE: cari berdasarkan data existing order
-                $existingOrderForUpdate = FormOrder::findOrFail($validated['order_id']);
-                
-                $tokos = DaftarToko::where('nama_toko', $existingOrderForUpdate->nama_toko)
-                    ->where('lokasi_event', $existingOrderForUpdate->lokasi_event)
-                    ->where('kota', $existingOrderForUpdate->kota)
-                    ->where(function($query) use ($existingOrderForUpdate) {
-                        $picOld = $existingOrderForUpdate->pic ?? '';
-                        $nomorPicOld = $existingOrderForUpdate->no_hp ?? '';
-                        
-                        if (!empty($picOld) && !empty($nomorPicOld)) {
-                            $query->where('pic', $picOld)
-                                ->where('nomor_pic', $nomorPicOld);
-                        } else {
-                            $query->where(function($q) use ($picOld) {
-                                $q->where('pic', $picOld)
-                                    ->orWhereNull('pic')
-                                    ->orWhere('pic', '');
-                            })->where(function($q) use ($nomorPicOld) {
-                                $q->where('nomor_pic', $nomorPicOld)
-                                    ->orWhereNull('nomor_pic')
-                                    ->orWhere('nomor_pic', '');
-                            });
-                        }
-                    })
-                    ->get();
-                    
-                if ($tokos->isEmpty()) {
-                    // Fallback: cari berdasarkan ID toko dari request
-                    $tokos = collect([$tokoById]);
-                }
-            } else {
-                // Untuk CREATE: cari berdasarkan ID toko yang sudah discan
-                $tokos = collect([$tokoById]);
-            }
-
-            if ($tokos->isEmpty()) {
-                \Log::error('Toko tidak ditemukan', [
-                    'nama_toko' => $tokoById->nama_toko,
-                    'lokasi_event' => $validated['lokasi_event'],
-                    'kota' => $validated['kota'],
-                    'pic_old' => $validated['pic_old'] ?? null,
-                    'nomor_pic_old' => $validated['nomor_pic_old'] ?? null,
-                    'is_update' => $isUpdate,
-                    'toko_id' => $tokoById->id
-                ]);
-                
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Data toko tidak ditemukan dengan kriteria yang diberikan!'
-                    ], 422);
-                }
-
-                return redirect()->back()
-                    ->with('error', 'Data toko tidak ditemukan dengan kriteria yang diberikan!')
-                    ->withInput();
-            }
-
-            $toko = $tokos->first();
-
-            // UPDATE DATA TOKO
-            if ($isUpdate) {
+                // Untuk update, update berdasarkan ID toko yang ditemukan
                 DaftarToko::where('id', $toko->id)->update([
                     'pic' => $request->pic,
                     'nomor_pic' => $request->no_hp,
                     'nama_sales' => $validated['nama_sales']
                 ]);
             } else {
+                // Untuk create, update toko yang ditemukan
                 DaftarToko::where('id', $toko->id)->update([
                     'pic' => $request->pic,
                     'nomor_pic' => $request->no_hp,
@@ -565,6 +875,7 @@ class FormOrderController extends Controller
                     'kota' => $validated['kota'],
                 ]);
                 
+                // Update juga toko lain yang sama (jika ada duplikat berdasarkan kode_toko)
                 DaftarToko::where('kode_toko', $toko->kode_toko)
                     ->where('id', '!=', $toko->id)
                     ->update([
@@ -574,7 +885,7 @@ class FormOrderController extends Controller
                         'kota' => $validated['kota'],
                     ]);
             }
-
+            
             // CREATE OR UPDATE FORM ORDER
             $totalGrandPoint = 0;
             $totalKupon = 0;
@@ -677,7 +988,7 @@ class FormOrderController extends Controller
             
             DB::commit();
             
-            // Log aktivitas
+            // Log aktivitas (sama seperti sebelumnya)
             try {
                 $logUsername = auth()->check()
                     ? auth()->user()->name
@@ -715,7 +1026,7 @@ class FormOrderController extends Controller
             
             // Tentukan redirect berdasarkan source parameter
             $source = $request->input('source', 'create-page');
-
+            
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -725,17 +1036,17 @@ class FormOrderController extends Controller
                     'is_update' => $isUpdate,
                     'source' => $source,
                     'redirect_url' => $source === 'quick-scan' 
-                        ? route('form-order.success', [  // Quick scan ke success page
+                        ? route('form-order.success', [
                             'kode_unik' => $kodeUnik ?? ($formOrder->kode_unik_voucher ?? ''),
                             'jumlah_voucher' => $totalKupon ?? 0,
                         ])
-                        : route('form-order.index'),  // Create page ke index
+                        : route('form-order.index'),
                     'form_order_id' => $formOrder->id,
                     'nama_toko' => $formOrder->nama_toko,
                     'nama_agen' => $formOrder->nama_agen,
                 ]);
             }
-
+            
             // Non-AJAX redirect
             if ($source === 'quick-scan') {
                 return redirect()->route('form-order.success', [
@@ -743,13 +1054,17 @@ class FormOrderController extends Controller
                     'jumlah_voucher' => $totalKupon ?? 0,
                 ]);
             }
-
-            // Create page redirect ke index
+            
             return redirect()->route('form-order.index')
                 ->with('success', $successMessage);
             
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            \Log::error('Store order error: ' . $e->getMessage(), [
+                'request' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
             
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
