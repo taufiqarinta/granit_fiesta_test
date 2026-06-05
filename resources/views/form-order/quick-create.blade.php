@@ -205,6 +205,39 @@
             cursor: default;
         }
 
+        .input-success {
+            background: #ecfdf5;
+            border-color: #4ade80;
+            color: #064e3b;
+        }
+
+        .input-success:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, .15);
+        }
+
+        .summary-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: .75rem .5rem 0;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid rgba(156, 163, 175, .2);
+        }
+
+        .summary-item {
+            font-size: .92rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .summary-item strong {
+            color: #166534;
+            margin-right: .35rem;
+        }
+
         .input-row {
             display: flex;
             gap: .5rem;
@@ -596,6 +629,11 @@
                         @endforeach
                     </div>
 
+                    <div class="summary-panel">
+                        <div class="summary-item"><strong>Total Point:</strong> <span id="total_points_display">0</span></div>
+                        <div class="summary-item"><strong>Total Kupon:</strong> <span id="total_kupon_display">0</span></div>
+                    </div>
+
                     <!-- Tanda Tangan -->
                     <hr class="divider">
                     <p class="section-label">✍️ Tanda Tangan</p>
@@ -871,7 +909,8 @@ document.querySelectorAll('input[type="text"]').forEach(function(el) {
 ═══════════════════════════════════════════ */
 document.querySelectorAll('.paket-qty').forEach(function(el) {
     el.addEventListener('focus', function() { if (this.value === '0') this.value = ''; });
-    el.addEventListener('blur',  function() { if (this.value === '')  this.value = '0'; });
+    el.addEventListener('blur',  function() { if (this.value === '')  this.value = '0'; updateTotalSummary(); });
+    el.addEventListener('input', updateTotalSummary);
 });
 
 /* ═══════════════════════════════════════════
@@ -885,6 +924,40 @@ function alertErr(msg) {
 
 function closeToast() { $('#toast').removeClass('show'); }
 
+function setLoadedInputs(ids, active) {
+    ids.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('input-success', !!active);
+    });
+}
+
+function markTokoLoaded(active) {
+    setLoadedInputs(['kode_toko_input','lokasi_event','pic','no_hp','kota'], active);
+}
+
+function markAgenLoaded(active) {
+    setLoadedInputs(['kode_agen_input','nama_agen','brand','kode_agen_manual_input'], active);
+}
+
+function formatNumber(value) {
+    return new Intl.NumberFormat('id-ID').format(value);
+}
+
+function updateTotalSummary() {
+    let totalPoint = 0;
+    let totalKupon = 0;
+    document.querySelectorAll('.paket-qty').forEach(function(el) {
+        const qty = parseInt(el.value, 10) || 0;
+        const point = parseFloat(el.dataset.point || 0) || 0;
+        const kupon = parseFloat(el.dataset.kupon || 0) || 0;
+        totalPoint += qty * point;
+        totalKupon += qty * kupon;
+    });
+    document.getElementById('total_points_display').textContent = formatNumber(totalPoint);
+    document.getElementById('total_kupon_display').textContent = formatNumber(totalKupon);
+}
+
 function resetForm() {
     document.getElementById('scanForm').reset();
     scanLock = false; lastCode = '';
@@ -894,6 +967,9 @@ function resetForm() {
      'lokasi_event_hidden','nama_agen_id_hidden','nama_agen_id_hidden_alt'].forEach(id => document.getElementById(id).value = '');
     document.querySelectorAll('.paket-qty').forEach(el => el.value = '0');
     ['pic','agen','kobin'].forEach(clearTTD);
+    markTokoLoaded(false);
+    markAgenLoaded(false);
+    updateTotalSummary();
 }
 
 /* ═══════════════════════════════════════════
@@ -928,12 +1004,14 @@ function doLookupAgen(kode) {
                 $('#brand').val((res.data.brands || []).join(', '));
                 $('#nama_agen_id_hidden').val(res.data.id || '');
                 $('#nama_agen_id_hidden_alt').val(res.data.id || '');
+                markAgenLoaded(true);
                 
                 // AFTER loading agen, check for existing order
                 checkExistingOrder();
             } else {
                 $('#kode_agen_input, #nama_agen, #brand').val('');
                 $('#nama_agen_id_hidden, #nama_agen_id_hidden_alt').val('');
+                markAgenLoaded(false);
                 alertErr(res.message || 'Agen tidak ditemukan');
                 resetOrderForm();
                 isEditingOrder = false;
@@ -941,6 +1019,7 @@ function doLookupAgen(kode) {
             }
         })
         .fail(function() { 
+            markAgenLoaded(false);
             alertErr('Gagal melakukan lookup agen');
             resetOrderForm();
         });
@@ -1021,6 +1100,7 @@ function checkExistingOrder() {
                     $this.val(0);
                 }
             });
+            updateTotalSummary();
             
             // Clear all signatures (as requested)
             clearTTD('pic');
@@ -1078,6 +1158,7 @@ function checkExistingOrder() {
             
             // Reset paket quantities to 0
             $('.paket-qty').val(0);
+            updateTotalSummary();
             
             // Clear signatures
             clearTTD('pic');
@@ -1123,6 +1204,7 @@ function doLookupToko(kode) {
                 $('#kota').val(d.kota || '');
                 $('#lokasi_event').val(d.lokasi_event || $('#lokasi_event').val());
                 $('#nama_sales').val(d.nama_sales || '');
+                markTokoLoaded(true);
                 // hidden
                 $('#nama_toko_hidden').val(d.nama_toko || ''); // Store nama_toko for checking
                 $('#kode_toko_hidden').val(d.kode_toko || '');
@@ -1140,15 +1222,18 @@ function doLookupToko(kode) {
                         checkExistingOrder();
                     }, 500); // Small delay to ensure all data is set
                 }
+                updateTotalSummary();
             } else {
                 if (res.default_lokasi) $('#lokasi_event').val(res.default_lokasi);
                 setStatus('Toko tidak ditemukan.', 'err');
+                markTokoLoaded(false);
                 alertErr(res.message || 'Toko tidak ditemukan');
                 resetOrderForm();
             }
         })
         .fail(function() {
             setStatus('Lookup gagal.', 'err');
+            markTokoLoaded(false);
             alertErr('Gagal melakukan lookup toko');
             resetOrderForm();
         });

@@ -756,6 +756,18 @@ $('#kode_agen_manual_input').on('keydown', function(e) {
     if (e.key === 'Enter') { e.preventDefault(); $('#btnLookupAgen').click(); }
 });
 
+$('#kode_agen_manual_input').on('input', function() {
+    // Jika input dikosongkan, reset semua status
+    if ($(this).val().trim() === '') {
+        resetOrderForm();
+        isEditingOrder = false;
+        currentOrderId = null;
+        $('.btn-success').html('✔ Simpan Order');
+        $('.btn-success').removeClass('btn-warning').addClass('btn-success');
+        $('#kode_agen_input, #nama_agen, #brand').val('');
+        $('#nama_agen_id_hidden, #nama_agen_id_hidden_alt').val('');
+    }
+});
 /* ═══════════════════════════════════════════
    TANDA TANGAN
 ═══════════════════════════════════════════ */
@@ -898,6 +910,15 @@ let currentOrderId = null;
 function doLookupAgen(kode) {
     kode = (kode || '').trim();
     if (!kode) return Promise.reject('Kode agen kosong');
+
+    isEditingOrder = false;
+    currentOrderId = null;
+    if ($('#order_id').length) {
+        $('#order_id').remove();
+    }
+    // Reset submit button ke state awal
+    $('.btn-success').html('✔ Simpan Order');
+    $('.btn-success').removeClass('btn-warning').addClass('btn-success');
     
     return $.get('{{ url('/api/lookup-agen-by-kode') }}', { kode_agen: kode })
         .done(function(res) {
@@ -915,6 +936,8 @@ function doLookupAgen(kode) {
                 $('#nama_agen_id_hidden, #nama_agen_id_hidden_alt').val('');
                 alertErr(res.message || 'Agen tidak ditemukan');
                 resetOrderForm();
+                isEditingOrder = false;
+                currentOrderId = null;
             }
         })
         .fail(function() { 
@@ -1062,7 +1085,7 @@ function checkExistingOrder() {
             clearTTD('kobin');
             $('#wrap-pic, #wrap-agen, #wrap-kobin').removeClass('has-sig');
             
-            // Reset submit button
+            // Reset submit button - PASTIKAN INI ADA
             $('.btn-success').html('✔ Simpan Order');
             $('.btn-success').removeClass('btn-warning').addClass('btn-success');
             
