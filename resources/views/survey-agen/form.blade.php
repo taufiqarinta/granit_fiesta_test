@@ -303,7 +303,7 @@
             <p class="section-label">📝 Informasi Agen</p>
 
             <div class="field">
-                <label class="label">Cari Kode Agen (kode agen dapat dilihat di undangan) <span style="color:var(--danger);">*</span></label>
+                <label class="label">Cek Kode Agen (kode agen dapat dilihat di undangan) <span style="color:var(--danger);">*</span></label>
                 <div class="grid-2">
                     <input type="text" id="kodeAgenSearch" class="input" placeholder="Masukkan kode agen" autocomplete="off">
                     <button type="button" class="btn btn-primary" id="btnCariAgen">🔍 Cek Data Agen</button>
