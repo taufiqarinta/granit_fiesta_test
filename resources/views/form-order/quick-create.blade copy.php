@@ -751,7 +751,7 @@
                         <div class="ttd-box" data-sign-key="pic">
                             <span class="ttd-label">PIC Toko</span>
                             <div class="ttd-preview empty" id="preview-pic"><span>TTD belum diisi</span></div>
-                            <button type="button" class="btn btn-primary btn-full" data-sign-button="pic" onclick="openSignatureModal('pic')">✍️ Isi Tanda Tangan</button>
+                            <button type="button" class="btn btn-primary btn-full" onclick="openSignatureModal('pic')">✍️ Isi Tanda Tangan</button>
                             <button type="button" class="btn btn-danger" onclick="clearTTD('pic')">✕ Hapus</button>
                             <input type="hidden" name="ttd_pic" id="ttd_pic_hidden">
                         </div>
@@ -759,7 +759,7 @@
                         <div class="ttd-box" data-sign-key="agen">
                             <span class="ttd-label">Agen</span>
                             <div class="ttd-preview empty" id="preview-agen"><span>TTD belum diisi</span></div>
-                            <button type="button" class="btn btn-primary btn-full" data-sign-button="agen" onclick="openSignatureModal('agen')">✍️ Isi Tanda Tangan</button>
+                            <button type="button" class="btn btn-primary btn-full" onclick="openSignatureModal('agen')">✍️ Isi Tanda Tangan</button>
                             <button type="button" class="btn btn-danger" onclick="clearTTD('agen')">✕ Hapus</button>
                             <input type="hidden" name="ttd_agen" id="ttd_agen_hidden">
                         </div>
@@ -767,7 +767,7 @@
                         <div class="ttd-box" data-sign-key="kobin">
                             <span class="ttd-label">Kobin Tiles</span>
                             <div class="ttd-preview empty" id="preview-kobin"><span>TTD belum diisi</span></div>
-                            <button type="button" class="btn btn-primary btn-full" data-sign-button="kobin" onclick="openSignatureModal('kobin')">✍️ Isi Tanda Tangan</button>
+                            <button type="button" class="btn btn-primary btn-full" onclick="openSignatureModal('kobin')">✍️ Isi Tanda Tangan</button>
                             <button type="button" class="btn btn-danger" onclick="clearTTD('kobin')">✕ Hapus</button>
                             <input type="hidden" name="ttd_kobin_tiles" id="ttd_kobin_hidden">
                         </div>
@@ -787,7 +787,7 @@
                             </div>
                             <div class="modal-actions">
                                 <button type="button" class="btn btn-outline" id="btnModalClear">Bersihkan</button>
-                                <button type="button" class="btn btn-success" id="btnModalSave">Simpan</button>
+                                <button type="button" class="btn btn-success" id="btnModalSave">Selesai</button>
                             </div>
                         </div>
                     </div>
@@ -956,12 +956,6 @@ const signaturePreviewMap = {
     kobin: 'preview-kobin'
 };
 
-const signatureButtonMap = {
-    pic: 'button[data-sign-button="pic"]',
-    agen: 'button[data-sign-button="agen"]',
-    kobin: 'button[data-sign-button="kobin"]'
-};
-
 let currentSignatureKey = null;
 const modalCanvas = document.getElementById('modal-canvas');
 const modalWrap = document.getElementById('wrap-modal');
@@ -1004,33 +998,10 @@ function initSignaturePad() {
     modalCanvas.addEventListener('touchend', endSignature, { passive: false });
 }
 
-function getSignatureButton(key) {
-    const selector = signatureButtonMap[key];
-    return selector ? document.querySelector(selector) : null;
-}
-
-function setSignatureButtonLabel(key, hasSignature) {
-    const button = getSignatureButton(key);
-    if (!button) return;
-    button.textContent = hasSignature ? '✍️ Ubah Tanda Tangan' : '✍️ Isi Tanda Tangan';
-}
-
-function initSignatureButtonLabels() {
-    Object.keys(signatureButtonMap).forEach(function(key) {
-        const value = document.querySelector(signatureHiddenMap[key])?.value || '';
-        setSignatureButtonLabel(key, !!value);
-    });
-}
-
 function openSignatureModal(key) {
     currentSignatureKey = key;
     const title = signatureTitleMap[key] || 'Tanda Tangan';
     document.getElementById('modalTitle').textContent = title;
-
-    // Reset tanda tangan lama jika user ingin mengubah
-    if (document.querySelector(signatureHiddenMap[key])?.value) {
-        clearTTD(key);
-    }
 
     // Tampilkan modal DULU
     document.getElementById('signatureModal').classList.add('show');
@@ -1103,7 +1074,6 @@ function updateSignaturePreview(key, dataUrl) {
     preview.appendChild(img);
 
     if (box) box.classList.add('has-sig');
-    setSignatureButtonLabel(key, true);
 }
 
 function setTTDError(key, hasError) {
@@ -1144,7 +1114,6 @@ function clearTTD(key) {
     const box = document.querySelector(`.ttd-box[data-sign-key="${key}"]`);
     if (box) box.classList.remove('has-sig');
     setTTDError(key, false);
-    setSignatureButtonLabel(key, false);
     if (currentSignatureKey === key) {
         clearModalCanvas();
     }
@@ -1204,7 +1173,6 @@ function saveModalSignature() {
 }
 
 initSignaturePad();
-initSignatureButtonLabels();
 
 $('#btnModalClear').on('click', function() {
     clearModalCanvas();

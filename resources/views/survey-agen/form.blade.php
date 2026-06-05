@@ -106,6 +106,17 @@
             cursor: default;
         }
 
+        .input-success {
+            background: #ecfdf5 !important;
+            border-color: #4ade80 !important;
+            color: #064e3b !important;
+        }
+
+        .input-success:focus {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, .15);
+        }
+
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
         @media (max-width: 620px) { .grid-2 { grid-template-columns: 1fr; } }
@@ -479,9 +490,17 @@ document.getElementById('btnCariAgen').addEventListener('click', function() {
                 document.getElementById('namaAgen').value = data.data.nama_agen || '';
                 document.getElementById('errorAlert').style.display = 'none';
                 document.getElementById('errorAlert').textContent = '';
+                
+                // Apply success styling
+                document.getElementById('kodeAgenSearch').classList.add('input-success');
+                document.getElementById('kodeAgen').classList.add('input-success');
+                document.getElementById('namaAgen').classList.add('input-success');
             } else {
                 document.getElementById('kodeAgen').value = '';
                 document.getElementById('namaAgen').value = '';
+                document.getElementById('kodeAgenSearch').classList.remove('input-success');
+                document.getElementById('kodeAgen').classList.remove('input-success');
+                document.getElementById('namaAgen').classList.remove('input-success');
                 Swal.fire({
                     icon: 'warning',
                     title: 'Agen Tidak Ditemukan',
@@ -502,6 +521,17 @@ document.getElementById('kodeAgenSearch').addEventListener('keydown', function(e
     if (e.key === 'Enter') {
         e.preventDefault();
         document.getElementById('btnCariAgen').click();
+    }
+});
+
+// Reset success styling saat input dikosongkan
+document.getElementById('kodeAgenSearch').addEventListener('input', function() {
+    if (this.value.trim() === '') {
+        document.getElementById('kodeAgenSearch').classList.remove('input-success');
+        document.getElementById('kodeAgen').classList.remove('input-success');
+        document.getElementById('namaAgen').classList.remove('input-success');
+        document.getElementById('kodeAgen').value = '';
+        document.getElementById('namaAgen').value = '';
     }
 });
 
