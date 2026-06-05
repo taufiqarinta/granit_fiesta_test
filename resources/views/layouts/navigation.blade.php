@@ -289,10 +289,16 @@
                     onmouseout="this.style.color='{{ request()->routeIs('daftaragen.*') ? '#dc2626' : 'white' }}'">
                     {{ __('Daftar Agen') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('daftartoko.index')" :active="request()->routeIs('daftartoko.*')"
+                <!-- <x-responsive-nav-link :href="route('daftartoko.index')" :active="request()->routeIs('daftartoko.*')"
                     style="{{ request()->routeIs('daftartoko.*') ? 'color: #dc2626 !important; border-color: #ef4444;' : 'color: white !important;' }}"
                     onmouseover="this.style.color='#dc2626'"
                     onmouseout="this.style.color='{{ request()->routeIs('daftartoko.*') ? '#dc2626' : 'white' }}'">
+                    {{ __('Daftar Toko') }}
+                </x-responsive-nav-link> -->
+                <x-responsive-nav-link :href="route('daftartoko.index')" :active="request()->routeIs('daftartoko.index') || request()->routeIs('daftartoko.create') || request()->routeIs('daftartoko.edit') || request()->routeIs('daftartoko.show')"
+                    style="{{ (request()->routeIs('daftartoko.index') || request()->routeIs('daftartoko.create') || request()->routeIs('daftartoko.edit') || request()->routeIs('daftartoko.show')) ? 'color: #dc2626 !important; border-color: #ef4444;' : 'color: white !important;' }}"
+                    onmouseover="this.style.color='#dc2626'"
+                    onmouseout="this.style.color='{{ (request()->routeIs('daftartoko.index') || request()->routeIs('daftartoko.create') || request()->routeIs('daftartoko.edit') || request()->routeIs('daftartoko.show')) ? '#dc2626' : 'white' }}'">
                     {{ __('Daftar Toko') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('kehadiran.index')" :active="request()->routeIs('kehadiran.*')"
