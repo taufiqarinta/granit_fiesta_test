@@ -312,13 +312,13 @@
 
             <div class="grid-2">
                 <div class="field">
-                    <label class="label">Kode Agen Hasil Search</label>
-                    <input type="text" name="kode_agen" id="kodeAgen" class="input" readonly placeholder="Hasil search kode agen">
+                    <label class="label">Kode Agen</label>
+                    <input type="text" name="kode_agen" id="kodeAgen" class="input" readonly placeholder="Kode Agen">
                 </div>
 
                 <div class="field">
-                    <label class="label">Nama Agen Hasil Search</label>
-                    <input type="text" name="nama_agen" id="namaAgen" class="input" readonly placeholder="Hasil search nama agen">
+                    <label class="label">Nama Agen</label>
+                    <input type="text" name="nama_agen" id="namaAgen" class="input" readonly placeholder="Nama Agen">
                 </div>
             </div>
 
