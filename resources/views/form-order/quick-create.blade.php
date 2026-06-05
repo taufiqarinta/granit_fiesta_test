@@ -206,13 +206,13 @@
         }
 
         .input-success {
-            background: #ecfdf5;
-            border-color: #4ade80;
-            color: #064e3b;
+            background: #ecfdf5 !important;
+            border-color: #4ade80 !important;
+            color: #064e3b !important;
         }
 
         .input-success:focus {
-            border-color: #22c55e;
+            border-color: #22c55e !important;
             box-shadow: 0 0 0 3px rgba(52, 211, 153, .15);
         }
 
@@ -234,7 +234,7 @@
         }
 
         .summary-item strong {
-            color: #166534;
+            color: #0f172a;
             margin-right: .35rem;
         }
 
