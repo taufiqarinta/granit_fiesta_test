@@ -395,7 +395,7 @@
             <table class="signature-labels">
                 <tr>
                     <td>
-                        <div class="signature-box">
+                        <!-- <div class="signature-box">
                             @if($signatureSrc($formOrder->ttd_pic))
                                 <img src="{{ $formOrder->ttd_pic }}" alt="TTD PIC">
                             @else
@@ -403,10 +403,10 @@
                             @endif
                         </div>
                         <div class="signature-name">( {{ $formOrder->pic }} )</div>
-                        <div class="signature-role">Nama Toko</div>
+                        <div class="signature-role">Nama Toko</div> -->
                     </td>
                     <td>
-                        <div class="signature-box">
+                        <!-- <div class="signature-box">
                             @if($signatureSrc($formOrder->ttd_agen))
                                 <img src="{{ $formOrder->ttd_agen }}" alt="TTD Agen">
                             @else
@@ -414,9 +414,9 @@
                             @endif
                         </div>
                         <div class="signature-name">( {{ $formOrder->nama_agen }} )</div>
-                        <div class="signature-role">Nama Agen</div>
+                        <div class="signature-role">Nama Agen</div> -->
                     </td>
-                    <td>
+                    <!-- <td>
                         <div class="signature-box">
                             @if($signatureSrc($formOrder->ttd_kobin_tiles))
                                 <img src="{{ $formOrder->ttd_kobin_tiles }}" alt="TTD Kobin Tiles">
@@ -426,6 +426,17 @@
                         </div>
                         <div class="signature-name">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div>
                         <div class="signature-role">Kobin Tiles</div>
+                    </td> -->
+                    <td>
+                        <div class="signature-box">
+                            @if($signatureSrc($formOrder->ttd_nama_terang))
+                                <img src="{{ $formOrder->ttd_nama_terang }}" alt="TTD Agen">
+                            @else
+                                <div class="signature-line"></div>
+                            @endif
+                        </div>
+                        <div class="signature-name">( {{ $formOrder->nama_terang }} )</div>
+                        <div class="signature-role">Pembuat Form Order</div>
                     </td>
                 </tr>
             </table>

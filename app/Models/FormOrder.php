@@ -32,6 +32,8 @@ class FormOrder extends Model
         'ttd_pic',
         'ttd_agen',
         'ttd_kobin_tiles',
+        'nama_terang',
+        'ttd_nama_terang',
     ];
 
     protected $casts = [

@@ -236,7 +236,7 @@
                                                         class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded text-xs font-medium transition-colors">
                                                             Lihat
                                                         </a>
-                                                        @if ($order->ttd_pic)
+                                                        @if ($order->ttd_pic || $order->ttd_nama_terang)
                                                         <a href="{{ route('form-order.pdf', $order->id) }}" 
                                                            target="_blank"
                                                            class="text-red-700 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded text-xs font-medium transition-colors">

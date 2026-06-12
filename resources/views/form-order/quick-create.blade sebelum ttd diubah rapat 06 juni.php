@@ -92,6 +92,10 @@
             aspect-ratio: 4 / 3;
         }
 
+        .scanner-box.hidden {
+            display: none;
+        }
+
         .scanner-box video {
             position: absolute;
             inset: 0;
@@ -205,6 +209,41 @@
             cursor: default;
         }
 
+        .input-success {
+            background: #ecfdf5 !important;
+            border-color: #4ade80 !important;
+            color: #064e3b !important;
+        }
+
+        .input-success:focus {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, .15);
+        }
+
+        .summary-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: .75rem 1rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid rgba(156, 163, 175, .2);
+            align-items: center;
+            min-height: 48px;  
+        }
+
+        .summary-item {
+            font-size: .92rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .summary-item strong {
+            color: #0f172a;
+            margin-right: .35rem;
+        }
+
         .input-row {
             display: flex;
             gap: .5rem;
@@ -264,6 +303,21 @@
         }
 
         .btn-danger:hover { background: #fef2f2; }
+
+        .ttd-box .btn {
+            font-size: .75rem;
+            padding: .45rem .75rem;
+            min-height: 16px;
+        }
+
+        .ttd-box .btn-danger {
+            font-size: .68rem;
+            padding: .25rem .55rem;
+        }
+
+        .swal2-container {
+            z-index: 99999 !important;
+        }
 
         .btn-full { width: 100%; }
 
@@ -369,9 +423,35 @@
         .ttd-canvas-wrap canvas {
             display: block;
             width: 100%;
-            height: 120px;
+            height: 240px;
             cursor: crosshair;
             touch-action: none;
+        }
+
+        .ttd-preview {
+            width: 100%;
+            min-height: 160px;
+            border: 1.5px dashed var(--border);
+            border-radius: 8px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: .85rem;
+            text-align: center;
+            color: #c8d3f0;
+            font-size: .85rem;
+            font-weight: 500;
+            overflow: hidden;
+        }
+
+        .ttd-preview.empty { color: #c8d3f0; }
+
+        .ttd-preview-img {
+            width: 100%;
+            max-height: 140px;
+            display: block;
+            object-fit: contain;
         }
 
         .ttd-placeholder {
@@ -388,6 +468,68 @@
         }
 
         .ttd-canvas-wrap.has-sig .ttd-placeholder { opacity: 0; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .65);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 9999;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-dialog {
+            width: min(100%, 720px);
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 16px 48px rgba(15, 23, 42, .18);
+            overflow: hidden;
+            animation: modalFade .18s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 1.25rem .75rem;
+            border-bottom: 1px solid rgba(15, 23, 42, .08);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 0 1.25rem 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: .75rem;
+            padding: 0 1.25rem 1.25rem;
+        }
+
+        .modal-close {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 10px;
+            padding: 0;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        @keyframes modalFade {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
 
         /* ── Footer ── */
         .form-footer {
@@ -596,39 +738,57 @@
                         @endforeach
                     </div>
 
+                    <div class="summary-panel">
+                        <div class="summary-item"><strong>Total Point:</strong> <span id="total_points_display">0</span></div>
+                        <div class="summary-item"><strong>Total Kupon:</strong> <span id="total_kupon_display">0</span></div>
+                    </div>
+
                     <!-- Tanda Tangan -->
                     <hr class="divider">
                     <p class="section-label">✍️ Tanda Tangan</p>
 
                     <div class="ttd-grid">
-                        <div class="ttd-box">
+                        <div class="ttd-box" data-sign-key="pic">
                             <span class="ttd-label">PIC Toko</span>
-                            <div class="ttd-canvas-wrap" id="wrap-pic">
-                                <canvas id="canvas-pic" width="300" height="120"></canvas>
-                                <span class="ttd-placeholder">TTD Disini</span>
-                            </div>
+                            <div class="ttd-preview empty" id="preview-pic"><span>TTD belum diisi</span></div>
+                            <button type="button" class="btn btn-primary btn-full" data-sign-button="pic" onclick="openSignatureModal('pic')">✍️ Isi Tanda Tangan</button>
                             <button type="button" class="btn btn-danger" onclick="clearTTD('pic')">✕ Hapus</button>
                             <input type="hidden" name="ttd_pic" id="ttd_pic_hidden">
                         </div>
 
-                        <div class="ttd-box">
+                        <div class="ttd-box" data-sign-key="agen">
                             <span class="ttd-label">Agen</span>
-                            <div class="ttd-canvas-wrap" id="wrap-agen">
-                                <canvas id="canvas-agen" width="300" height="120"></canvas>
-                                <span class="ttd-placeholder">TTD Disini</span>
-                            </div>
+                            <div class="ttd-preview empty" id="preview-agen"><span>TTD belum diisi</span></div>
+                            <button type="button" class="btn btn-primary btn-full" data-sign-button="agen" onclick="openSignatureModal('agen')">✍️ Isi Tanda Tangan</button>
                             <button type="button" class="btn btn-danger" onclick="clearTTD('agen')">✕ Hapus</button>
                             <input type="hidden" name="ttd_agen" id="ttd_agen_hidden">
                         </div>
 
-                        <div class="ttd-box">
+                        <div class="ttd-box" data-sign-key="kobin">
                             <span class="ttd-label">Kobin Tiles</span>
-                            <div class="ttd-canvas-wrap" id="wrap-kobin">
-                                <canvas id="canvas-kobin" width="300" height="120"></canvas>
-                                <span class="ttd-placeholder">TTD Disini</span>
-                            </div>
+                            <div class="ttd-preview empty" id="preview-kobin"><span>TTD belum diisi</span></div>
+                            <button type="button" class="btn btn-primary btn-full" data-sign-button="kobin" onclick="openSignatureModal('kobin')">✍️ Isi Tanda Tangan</button>
                             <button type="button" class="btn btn-danger" onclick="clearTTD('kobin')">✕ Hapus</button>
                             <input type="hidden" name="ttd_kobin_tiles" id="ttd_kobin_hidden">
+                        </div>
+                    </div>
+
+                    <div id="signatureModal" class="modal" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-header">
+                                <h3 id="modalTitle">Tanda Tangan</h3>
+                                <button type="button" class="modal-close btn btn-outline" onclick="closeSignatureModal()" aria-label="Tutup">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="ttd-canvas-wrap" id="wrap-modal">
+                                    <canvas id="modal-canvas" width="800" height="240"></canvas>
+                                    <span class="ttd-placeholder">Goreskan tanda tangan di sini</span>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-outline" id="btnModalClear">Bersihkan</button>
+                                <button type="button" class="btn btn-success" id="btnModalSave">Simpan</button>
+                            </div>
                         </div>
                     </div>
 
@@ -646,7 +806,7 @@
 
                     <div class="form-footer">
                         <a href="{{ route('form-order.index') }}" class="btn btn-outline">✕ Batal</a>
-                        <button type="submit" class="btn btn-success">✔ Simpan Order</button>
+                        <button type="submit" id="formSubmitButton" class="btn btn-success">✔ Simpan Order</button>
                     </div>
                 </form>
             </div>
@@ -682,6 +842,8 @@ function setStatus(msg, type) {
 async function startScanner() {
     if (scanRunning) return;
     try {
+        // Tampilkan scanner box
+        document.querySelector('.scanner-box').classList.remove('hidden');
         scanStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } }
         });
@@ -728,17 +890,22 @@ async function stopScanner() {
     if (scanRAF)    { cancelAnimationFrame(scanRAF); scanRAF = null; }
     if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
     videoEl.srcObject = null;
-    setStatus('Kamera dihentikan.');
+    // Sembunyikan scanner box saat terkunci
+    document.querySelector('.scanner-box').classList.add('hidden');
+    setStatus('Data toko ditemukan. Klik "Scan Ulang" untuk scan toko lain.');
 }
 
-/* Scan ulang → reload halaman */
+/* Scan ulang → reset toko data saja dan restart scanner tanpa reload */
 document.getElementById('btnScanUlang').addEventListener('click', function() {
-    window.location.reload();
+    resetTokoData();
+    startScanner();
 });
 
 $('#btnLookupToko').on('click', function() {
     const kode = $('#kode_toko_input').val().trim();
     if (!kode) { alertErr('Masukkan kode toko terlebih dahulu'); return; }
+    // Reset data toko lama sebelum lookup baru
+    resetTokoDataOnly();
     doLookupToko(kode);
 });
 
@@ -762,8 +929,8 @@ $('#kode_agen_manual_input').on('input', function() {
         resetOrderForm();
         isEditingOrder = false;
         currentOrderId = null;
-        $('.btn-success').html('✔ Simpan Order');
-        $('.btn-success').removeClass('btn-warning').addClass('btn-success');
+        $('#formSubmitButton').html('✔ Simpan Order');
+        $('#formSubmitButton').removeClass('btn-warning').addClass('btn-success');
         $('#kode_agen_input, #nama_agen, #brand').val('');
         $('#nama_agen_id_hidden, #nama_agen_id_hidden_alt').val('');
     }
@@ -771,54 +938,176 @@ $('#kode_agen_manual_input').on('input', function() {
 /* ═══════════════════════════════════════════
    TANDA TANGAN
 ═══════════════════════════════════════════ */
-const pads = {};
+const signatureTitleMap = {
+    pic: 'PIC Toko',
+    agen: 'Agen',
+    kobin: 'Kobin Tiles'
+};
 
-function initPad(key) {
-    const canvas = document.getElementById('canvas-' + key);
-    const wrap   = document.getElementById('wrap-' + key);
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let drawing = false, lx = 0, ly = 0;
+const signatureHiddenMap = {
+    pic: '#ttd_pic_hidden',
+    agen: '#ttd_agen_hidden',
+    kobin: '#ttd_kobin_hidden'
+};
 
-    function pos(e) {
-        const r  = canvas.getBoundingClientRect();
-        const sx = canvas.width  / r.width;
-        const sy = canvas.height / r.height;
-        const src = e.touches ? e.touches[0] : e;
-        return { x: (src.clientX - r.left) * sx, y: (src.clientY - r.top) * sy };
-    }
+const signaturePreviewMap = {
+    pic: 'preview-pic',
+    agen: 'preview-agen',
+    kobin: 'preview-kobin'
+};
 
-    function start(e) { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; }
-    function move(e) {
-        e.preventDefault(); if (!drawing) return;
-        const p = pos(e);
-        ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y);
-        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2.2;
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
-        lx = p.x; ly = p.y;
-        wrap.classList.add('has-sig');
-        syncPad(key);
-    }
-    function end(e) { e.preventDefault(); drawing = false; }
+const signatureButtonMap = {
+    pic: 'button[data-sign-button="pic"]',
+    agen: 'button[data-sign-button="agen"]',
+    kobin: 'button[data-sign-button="kobin"]'
+};
 
-    canvas.addEventListener('mousedown',  start);
-    canvas.addEventListener('mousemove',  move);
-    canvas.addEventListener('mouseup',    end);
-    canvas.addEventListener('mouseleave', end);
-    canvas.addEventListener('touchstart', start, { passive: false });
-    canvas.addEventListener('touchmove',  move,  { passive: false });
-    canvas.addEventListener('touchend',   end,   { passive: false });
+let currentSignatureKey = null;
+const modalCanvas = document.getElementById('modal-canvas');
+const modalWrap = document.getElementById('wrap-modal');
+const modalCtx = modalCanvas.getContext('2d');
+let drawing = false, lx = 0, ly = 0;
 
-    pads[key] = { canvas, ctx, wrap };
+function pos(e) {
+    const r = modalCanvas.getBoundingClientRect();
+    const sx = modalCanvas.width / r.width;
+    const sy = modalCanvas.height / r.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * sx, y: (src.clientY - r.top) * sy };
 }
 
-function syncPad(key) {
-    const map = { pic: '#ttd_pic_hidden', agen: '#ttd_agen_hidden', kobin: '#ttd_kobin_hidden' };
-    $(map[key]).val(document.getElementById('canvas-' + key).toDataURL('image/png'));
+function startSignature(e) { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; }
+function moveSignature(e) {
+    e.preventDefault(); if (!drawing) return;
+    const p = pos(e);
+    modalCtx.beginPath();
+    modalCtx.moveTo(lx, ly);
+    modalCtx.lineTo(p.x, p.y);
+    modalCtx.strokeStyle = '#1e293b';
+    modalCtx.lineWidth = 2.2;
+    modalCtx.lineCap = 'round';
+    modalCtx.lineJoin = 'round';
+    modalCtx.stroke();
+    lx = p.x; ly = p.y;
+    modalWrap.classList.add('has-sig');
+}
+function endSignature(e) { e.preventDefault(); drawing = false; }
+
+function initSignaturePad() {
+    if (!modalCanvas) return;
+    modalCanvas.addEventListener('mousedown', startSignature);
+    modalCanvas.addEventListener('mousemove', moveSignature);
+    modalCanvas.addEventListener('mouseup', endSignature);
+    modalCanvas.addEventListener('mouseleave', endSignature);
+    modalCanvas.addEventListener('touchstart', startSignature, { passive: false });
+    modalCanvas.addEventListener('touchmove', moveSignature, { passive: false });
+    modalCanvas.addEventListener('touchend', endSignature, { passive: false });
+}
+
+function getSignatureButton(key) {
+    const selector = signatureButtonMap[key];
+    return selector ? document.querySelector(selector) : null;
+}
+
+function setSignatureButtonLabel(key, hasSignature) {
+    const button = getSignatureButton(key);
+    if (!button) return;
+    button.textContent = hasSignature ? '✍️ Ubah Tanda Tangan' : '✍️ Isi Tanda Tangan';
+}
+
+function initSignatureButtonLabels() {
+    Object.keys(signatureButtonMap).forEach(function(key) {
+        const value = document.querySelector(signatureHiddenMap[key])?.value || '';
+        setSignatureButtonLabel(key, !!value);
+    });
+}
+
+function openSignatureModal(key) {
+    currentSignatureKey = key;
+    const title = signatureTitleMap[key] || 'Tanda Tangan';
+    document.getElementById('modalTitle').textContent = title;
+
+    // Reset tanda tangan lama jika user ingin mengubah
+    if (document.querySelector(signatureHiddenMap[key])?.value) {
+        clearTTD(key);
+    }
+
+    // Tampilkan modal DULU
+    document.getElementById('signatureModal').classList.add('show');
+
+    // Setelah modal visible, baru resize canvas sesuai ukuran wrap aktual
+    requestAnimationFrame(function() {
+        const wrap = document.getElementById('wrap-modal');
+        const rect = wrap.getBoundingClientRect();
+        
+        // Set canvas sesuai CSS size, tanpa DPR scaling
+        const w = Math.floor(rect.width)  || 800;
+        const h = Math.floor(rect.height) || 240;
+        
+        // Assign width/height = otomatis clear canvas + reset transform
+        modalCanvas.width  = w;
+        modalCanvas.height = h;
+
+        // Tidak perlu ctx.scale sama sekali
+        loadSignatureIntoModal(key);
+    });
+}
+
+function loadSignatureIntoModal(key) {
+    const value = document.querySelector(signatureHiddenMap[key])?.value || '';
+    if (!value) {
+        clearModalCanvas();
+        return;
+    }
+    const img = new Image();
+    img.onload = function() {
+        modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+        // Gambar sesuai ukuran canvas penuh, tanpa dibagi DPR
+        modalCtx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
+        modalWrap.classList.add('has-sig');
+    };
+    img.src = value;
+}
+
+function clearModalCanvas() {
+    modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    modalWrap.classList.remove('has-sig');
+}
+
+function closeSignatureModal() {
+    document.getElementById('signatureModal').classList.remove('show');
+    currentSignatureKey = null;
+}
+
+function isCanvasBlank() {
+    const data = modalCtx.getImageData(0, 0, modalCanvas.width, modalCanvas.height).data;
+    for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] !== 0 && (data[i] !== 255 || data[i + 1] !== 255 || data[i + 2] !== 255)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function updateSignaturePreview(key, dataUrl) {
+    const preview = document.getElementById(signaturePreviewMap[key]);
+    const box = document.querySelector(`.ttd-box[data-sign-key="${key}"]`);
+    if (!preview) return;
+    preview.innerHTML = '';
+    preview.classList.remove('empty');
+
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.alt = 'Preview tanda tangan ' + (signatureTitleMap[key] || key);
+    img.className = 'ttd-preview-img';
+    preview.appendChild(img);
+
+    if (box) box.classList.add('has-sig');
+    setSignatureButtonLabel(key, true);
 }
 
 function setTTDError(key, hasError) {
-    const box = document.querySelector('#wrap-' + key)?.closest('.ttd-box');
+    const box = document.querySelector(`.ttd-box[data-sign-key="${key}"]`);
     if (!box) return;
     box.classList.toggle('invalid', !!hasError);
 }
@@ -828,15 +1117,15 @@ function validateRequiredTTD() {
     let firstInvalidKey = null;
 
     requiredKeys.forEach(function(key) {
-        const wrap = document.getElementById('wrap-' + key);
-        const hasSignature = !!(wrap && wrap.classList.contains('has-sig'));
+        const value = document.querySelector(signatureHiddenMap[key])?.value || '';
+        const hasSignature = !!value;
         setTTDError(key, !hasSignature);
         if (!hasSignature && !firstInvalidKey) firstInvalidKey = key;
     });
 
     if (firstInvalidKey) {
         alertErr('Semua tanda tangan wajib diisi: PIC Toko, Agen, dan Kobin Tiles.');
-        const target = document.getElementById('wrap-' + firstInvalidKey);
+        const target = document.querySelector(`.ttd-box[data-sign-key="${firstInvalidKey}"]`);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return false;
     }
@@ -845,15 +1134,85 @@ function validateRequiredTTD() {
 }
 
 function clearTTD(key) {
-    const p = pads[key]; if (!p) return;
-    p.ctx.clearRect(0, 0, p.canvas.width, p.canvas.height);
-    p.wrap.classList.remove('has-sig');
+    const hidden = document.querySelector(signatureHiddenMap[key]);
+    if (hidden) hidden.value = '';
+    const preview = document.getElementById(signaturePreviewMap[key]);
+    if (preview) {
+        preview.innerHTML = '<span>TTD belum diisi</span>';
+        preview.classList.add('empty');
+    }
+    const box = document.querySelector(`.ttd-box[data-sign-key="${key}"]`);
+    if (box) box.classList.remove('has-sig');
     setTTDError(key, false);
-    const map = { pic: '#ttd_pic_hidden', agen: '#ttd_agen_hidden', kobin: '#ttd_kobin_hidden' };
-    $(map[key]).val('');
+    setSignatureButtonLabel(key, false);
+    if (currentSignatureKey === key) {
+        clearModalCanvas();
+    }
 }
 
-['pic', 'agen', 'kobin'].forEach(initPad);
+function getBoundingBox(canvas) {
+    const ctx = canvas.getContext('2d');
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            const alpha = data[(y * canvas.width + x) * 4 + 3];
+            if (alpha > 10) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+    }
+    if (minX > maxX) return null;
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+
+function saveModalSignature() {
+    if (!currentSignatureKey) return;
+    if (isCanvasBlank()) {
+        alertErr('Silakan isi tanda tangan terlebih dahulu');
+        return;
+    }
+
+    // Crop ke bounding box tanda tangan + padding 10px
+    const pad = 10;
+    const bb = getBoundingBox(modalCanvas);
+    let dataUrl;
+
+    if (bb) {
+        const cropX = Math.max(0, bb.x - pad);
+        const cropY = Math.max(0, bb.y - pad);
+        const cropW = Math.min(modalCanvas.width - cropX, bb.w + pad * 2);
+        const cropH = Math.min(modalCanvas.height - cropY, bb.h + pad * 2);
+
+        const tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width  = cropW;
+        tmpCanvas.height = cropH;
+        const tmpCtx = tmpCanvas.getContext('2d');
+        tmpCtx.drawImage(modalCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+        dataUrl = tmpCanvas.toDataURL('image/png');
+    } else {
+        dataUrl = modalCanvas.toDataURL('image/png');
+    }
+
+    const hidden = document.querySelector(signatureHiddenMap[currentSignatureKey]);
+    if (hidden) hidden.value = dataUrl;
+    updateSignaturePreview(currentSignatureKey, dataUrl);
+    closeSignatureModal();
+}
+
+initSignaturePad();
+initSignatureButtonLabels();
+
+$('#btnModalClear').on('click', function() {
+    clearModalCanvas();
+});
+
+$('#btnModalSave').on('click', function() {
+    saveModalSignature();
+});
 
 /* ═══════════════════════════════════════════
    UPPERCASE INPUT
@@ -871,7 +1230,8 @@ document.querySelectorAll('input[type="text"]').forEach(function(el) {
 ═══════════════════════════════════════════ */
 document.querySelectorAll('.paket-qty').forEach(function(el) {
     el.addEventListener('focus', function() { if (this.value === '0') this.value = ''; });
-    el.addEventListener('blur',  function() { if (this.value === '')  this.value = '0'; });
+    el.addEventListener('blur',  function() { if (this.value === '')  this.value = '0'; updateTotalSummary(); });
+    el.addEventListener('input', updateTotalSummary);
 });
 
 /* ═══════════════════════════════════════════
@@ -879,11 +1239,51 @@ document.querySelectorAll('.paket-qty').forEach(function(el) {
 ═══════════════════════════════════════════ */
 function alertErr(msg) {
     if (typeof Swal !== 'undefined') {
-        Swal.fire({ icon: 'error', title: 'Perhatian', text: msg, confirmButtonText: 'OK' });
+        Swal.fire({
+            icon: 'error',
+            title: 'Perhatian',
+            text: msg,
+            confirmButtonText: 'OK',
+            customClass: { container: 'swal-on-top' }
+        });
     } else { alert(msg); }
 }
 
 function closeToast() { $('#toast').removeClass('show'); }
+
+function setLoadedInputs(ids, active) {
+    ids.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('input-success', !!active);
+    });
+}
+
+function markTokoLoaded(active) {
+    setLoadedInputs(['kode_toko_input','lokasi_event','pic','no_hp','kota'], active);
+}
+
+function markAgenLoaded(active) {
+    setLoadedInputs(['kode_agen_input','nama_agen','brand','kode_agen_manual_input'], active);
+}
+
+function formatNumber(value) {
+    return new Intl.NumberFormat('id-ID').format(value);
+}
+
+function updateTotalSummary() {
+    let totalPoint = 0;
+    let totalKupon = 0;
+    document.querySelectorAll('.paket-qty').forEach(function(el) {
+        const qty = parseInt(el.value, 10) || 0;
+        const point = parseFloat(el.dataset.point || 0) || 0;
+        const kupon = parseFloat(el.dataset.kupon || 0) || 0;
+        totalPoint += qty * point;
+        totalKupon += qty * kupon;
+    });
+    document.getElementById('total_points_display').textContent = formatNumber(totalPoint);
+    document.getElementById('total_kupon_display').textContent = formatNumber(totalKupon);
+}
 
 function resetForm() {
     document.getElementById('scanForm').reset();
@@ -894,6 +1294,44 @@ function resetForm() {
      'lokasi_event_hidden','nama_agen_id_hidden','nama_agen_id_hidden_alt'].forEach(id => document.getElementById(id).value = '');
     document.querySelectorAll('.paket-qty').forEach(el => el.value = '0');
     ['pic','agen','kobin'].forEach(clearTTD);
+    markTokoLoaded(false);
+    markAgenLoaded(false);
+    updateTotalSummary();
+}
+
+function resetTokoData() {
+    scanLock = false; lastCode = '';
+    // Reset display fields toko saja, tidak termasuk agen/paket
+    ['kode_toko_input','pic','no_hp','kota'].forEach(id => document.getElementById(id).value = '');
+    // Reset hidden fields toko saja
+    ['nama_toko_hidden','kode_toko_hidden','pic_hidden','no_hp_hidden','kota_hidden','pic_old_hidden','nomor_pic_old_hidden'].forEach(id => document.getElementById(id).value = '');
+    // Reset lokasi_event ke default
+    const defaultLokasi = document.getElementById('lokasi_event').getAttribute('data-default') || '';
+    document.getElementById('lokasi_event').value = defaultLokasi;
+    // Remove highlight toko
+    markTokoLoaded(false);
+    // Clear tanda tangan
+    ['pic','agen','kobin'].forEach(clearTTD);
+    // Tampilkan scanner box lagi
+    document.querySelector('.scanner-box').classList.remove('hidden');
+    // Reset scanner status
+    setStatus('Kamera siap. Arahkan QR code ke frame.');
+}
+
+function resetTokoDataOnly() {
+    scanLock = false; lastCode = '';
+    // Reset display fields toko saja, tidak termasuk agen/paket
+    ['kode_toko_input','pic','no_hp','kota'].forEach(id => document.getElementById(id).value = '');
+    // Reset hidden fields toko saja
+    ['nama_toko_hidden','kode_toko_hidden','pic_hidden','no_hp_hidden','kota_hidden','pic_old_hidden','nomor_pic_old_hidden'].forEach(id => document.getElementById(id).value = '');
+    // Reset lokasi_event ke default
+    const defaultLokasi = document.getElementById('lokasi_event').getAttribute('data-default') || '';
+    document.getElementById('lokasi_event').value = defaultLokasi;
+    // Remove highlight toko
+    markTokoLoaded(false);
+    // Clear tanda tangan
+    ['pic','agen','kobin'].forEach(clearTTD);
+    // Jangan ubah status scanner
 }
 
 /* ═══════════════════════════════════════════
@@ -917,8 +1355,8 @@ function doLookupAgen(kode) {
         $('#order_id').remove();
     }
     // Reset submit button ke state awal
-    $('.btn-success').html('✔ Simpan Order');
-    $('.btn-success').removeClass('btn-warning').addClass('btn-success');
+    $('#formSubmitButton').html('✔ Simpan Order');
+    $('#formSubmitButton').removeClass('btn-warning').addClass('btn-success');
     
     return $.get('{{ url('/api/lookup-agen-by-kode') }}', { kode_agen: kode })
         .done(function(res) {
@@ -928,12 +1366,14 @@ function doLookupAgen(kode) {
                 $('#brand').val((res.data.brands || []).join(', '));
                 $('#nama_agen_id_hidden').val(res.data.id || '');
                 $('#nama_agen_id_hidden_alt').val(res.data.id || '');
+                markAgenLoaded(true);
                 
                 // AFTER loading agen, check for existing order
                 checkExistingOrder();
             } else {
                 $('#kode_agen_input, #nama_agen, #brand').val('');
                 $('#nama_agen_id_hidden, #nama_agen_id_hidden_alt').val('');
+                markAgenLoaded(false);
                 alertErr(res.message || 'Agen tidak ditemukan');
                 resetOrderForm();
                 isEditingOrder = false;
@@ -941,6 +1381,7 @@ function doLookupAgen(kode) {
             }
         })
         .fail(function() { 
+            markAgenLoaded(false);
             alertErr('Gagal melakukan lookup agen');
             resetOrderForm();
         });
@@ -1021,14 +1462,15 @@ function checkExistingOrder() {
                     $this.val(0);
                 }
             });
+            updateTotalSummary();
             
             // Clear all signatures (as requested)
             clearTTD('pic');
             clearTTD('agen');
             clearTTD('kobin');
             
-            // Remove has-sig class from wraps
-            $('#wrap-pic, #wrap-agen, #wrap-kobin').removeClass('has-sig');
+            // Reset visual state
+            $('.ttd-box[data-sign-key]').removeClass('has-sig');
             
             // Format numbers for display
             const formattedTotalPoint = new Intl.NumberFormat('id-ID').format(res.data.total_point || 0);
@@ -1065,8 +1507,8 @@ function checkExistingOrder() {
             });
             
             // Update submit button
-            $('.btn-success').html('✏️ Update Order');
-            $('.btn-success').addClass('btn-warning').removeClass('btn-success');
+            $('#formSubmitButton').html('✏️ Update Order');
+            $('#formSubmitButton').addClass('btn-warning').removeClass('btn-success');
             
         } else if (res.success && !res.exists) {
             // No existing order - normal flow
@@ -1078,16 +1520,17 @@ function checkExistingOrder() {
             
             // Reset paket quantities to 0
             $('.paket-qty').val(0);
+            updateTotalSummary();
             
             // Clear signatures
             clearTTD('pic');
             clearTTD('agen');
             clearTTD('kobin');
-            $('#wrap-pic, #wrap-agen, #wrap-kobin').removeClass('has-sig');
+            $('.ttd-box[data-sign-key]').removeClass('has-sig');
             
             // Reset submit button - PASTIKAN INI ADA
-            $('.btn-success').html('✔ Simpan Order');
-            $('.btn-success').removeClass('btn-warning').addClass('btn-success');
+            $('#formSubmitButton').html('✔ Simpan Order');
+            $('#formSubmitButton').removeClass('btn-warning').addClass('btn-success');
             
             // Swal.fire({
             //     icon: 'success',
@@ -1123,6 +1566,7 @@ function doLookupToko(kode) {
                 $('#kota').val(d.kota || '');
                 $('#lokasi_event').val(d.lokasi_event || $('#lokasi_event').val());
                 $('#nama_sales').val(d.nama_sales || '');
+                markTokoLoaded(true);
                 // hidden
                 $('#nama_toko_hidden').val(d.nama_toko || ''); // Store nama_toko for checking
                 $('#kode_toko_hidden').val(d.kode_toko || '');
@@ -1133,6 +1577,8 @@ function doLookupToko(kode) {
                 $('#pic_old_hidden').val(d.pic || '');
                 $('#nomor_pic_old_hidden').val(d.no_hp || '');
                 setStatus('✔ Toko: ' + (d.nama_toko || ''), 'ok');
+                // KUNCI SCANNER setelah berhasil load toko
+                stopScanner();
                 
                 // AFTER loading toko, check if agen is already loaded
                 if ($('#kode_agen_input').val().trim()) {
@@ -1140,15 +1586,17 @@ function doLookupToko(kode) {
                         checkExistingOrder();
                     }, 500); // Small delay to ensure all data is set
                 }
+                updateTotalSummary();
             } else {
-                if (res.default_lokasi) $('#lokasi_event').val(res.default_lokasi);
                 setStatus('Toko tidak ditemukan.', 'err');
+                markTokoLoaded(false);
                 alertErr(res.message || 'Toko tidak ditemukan');
                 resetOrderForm();
             }
         })
         .fail(function() {
             setStatus('Lookup gagal.', 'err');
+            markTokoLoaded(false);
             alertErr('Gagal melakukan lookup toko');
             resetOrderForm();
         });
@@ -1183,7 +1631,7 @@ function resetOrderForm() {
     clearTTD('pic');
     clearTTD('agen');
     clearTTD('kobin');
-    $('.btn-success').html('✔ Simpan Order');
+    $('#formSubmitButton').html('✔ Simpan Order');
 }
 
 // Update submit handler to show appropriate message
@@ -1203,9 +1651,6 @@ $('#scanForm').on('submit', function(e) {
     $(this).find('input[type="text"], textarea').each(function() {
         if (this.value) this.value = this.value.toUpperCase();
     });
-
-    // Sync tanda tangan
-    ['pic', 'agen', 'kobin'].forEach(syncPad);
 
     // Validasi frontend-only untuk tanda tangan wajib
     if (!validateRequiredTTD()) return;

@@ -118,6 +118,14 @@
                             {{ __('Klaim Doorprize') }}
                         </x-nav-link>
                     </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('history-form-order.index')" :active="request()->routeIs('history-form-order.*')"
+                            class="text-white"
+                            onmouseover="this.style.color='#dc2626'"
+                            onmouseout="this.style.color='white'">
+                            {{ __('History Form Order') }}
+                        </x-nav-link>
+                    </div>
                     <!-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('order-gathering.index')" :active="request()->routeIs('order-gathering.*')">
                             {{ __('Order Gathering') }}
@@ -336,6 +344,12 @@
                     onmouseover="this.style.color='#dc2626'"
                     onmouseout="this.style.color='{{ request()->routeIs('pemenang.*') ? '#dc2626' : 'white' }}'">
                     {{ __('Klaim Doorprize') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('history-form-order.index')" :active="request()->routeIs('history-form-order.*')"
+                    style="{{ request()->routeIs('history-form-order.*') ? 'color: #dc2626 !important; border-color: #ef4444;' : 'color: white !important;' }}"
+                    onmouseover="this.style.color='#dc2626'"
+                    onmouseout="this.style.color='{{ request()->routeIs('history-form-order.*') ? '#dc2626' : 'white' }}'">
+                    {{ __('History Order') }}
                 </x-responsive-nav-link>
             @elseif (Auth::user()->role_as == 0)
                 <x-responsive-nav-link :href="route('form-order.index')" :active="request()->routeIs('form-order.*')"

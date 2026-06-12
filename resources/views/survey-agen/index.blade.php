@@ -1,126 +1,133 @@
 <x-app-layout>
-            <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl leading-tight">
-                        {{ __('Daftar Form Survey') }}
-            </h2>
-            <a href="{{ route('form-survey.scan-qr') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg flex items-center gap-2 transition">
-                Scan QR
-            </a>
-        </div>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Daftar Form Survey') }}
+        </h2>
     </x-slot>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+    <div class="py-6 px-4 max-w-8xl mx-auto">
 
-                    <form method="GET" action="{{ route('form-survey.index') }}" class="mb-6">
-                        <div class="flex flex-col md:flex-row gap-3">
-                            <div class="flex-1">
-                                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cari Kode Survey, Kode Agen, atau Nama Agen</label>
-                                <input
-                                    type="text"
-                                    name="search"
-                                    id="search"
-                                    value="{{ $search ?? '' }}"
-                                    placeholder="Masukkan kata kunci pencarian"
-                                    class="w-full rounded-lg border-gray-300 focus:border-blue-600 focus:ring-blue-600"
-                                >
-                            </div>
-                            <div class="flex items-end gap-2">
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">
-                                    Cari
-                                </button>
-                                @if(!empty($search))
-                                    <a href="{{ route('form-survey.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-5 py-2.5 rounded-lg transition">
-                                        Reset
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                    
-                    @if($surveys->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="w-full border-collapse">
-                                <thead class="bg-gray-50 border-b border-gray-200">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode Survey</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Kode Agen</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Agen</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Sales</th>
-                                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Status Klaim</th>
-                                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    @foreach($surveys as $survey)
-                                        <tr class="hover:bg-gray-50 transition">
-                                            <td class="px-6 py-4 text-sm font-mono text-gray-900">{{ $survey->kode_survey }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ $survey->kode_agen }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $survey->nama_agen }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ optional($survey->details->first())->nama_sales ?? '-' }}</td>
-                                            <td class="px-6 py-4 text-center">
-                                                @if($survey->status_klaim_hadiah == 1)
-                                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                                        </svg>
-                                                        Sudah
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                                        </svg>
-                                                        Belum
-                                                    </span>
-                                                @endif
-                                            </td>
-                                            <td class="px-6 py-4 text-center">
-                                                <a href="{{ route('form-survey.detail', $survey->kode_survey) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
-                                                    Detail
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+        {{-- Tombol Scan QR --}}
+        <!-- <div class="mb-6 flex justify-end">
+            <a href="{{ route('form-survey.scan-qr') }}" 
+               class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+                Scan QR
+            </a>
+        </div> -->
 
-                        <!-- Pagination -->
-                        <div class="mt-6">
-                            {{ $surveys->links() }}
-                        </div>
-                    @elseif(!empty($search))
-                        <div class="text-center py-12">
-                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l6 6m-2-11a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Data tidak ditemukan</h3>
-                            <p class="text-gray-600 mb-4">Tidak ada survey yang cocok dengan pencarian "{{ $search }}".</p>
-                            <a href="{{ route('form-survey.index') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition">
-                                Lihat Semua Data
-                            </a>
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum ada survey agen</h3>
-                            <p class="text-gray-600 mb-4">Mulai dengan membuat survey agen baru</p>
-                            <a href="{{ route('form-survey.form') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition">
-                                Buat Survey Baru
-                            </a>
-                        </div>
-                    @endif
-
+        {{-- Filter --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-5 mb-6">
+            <form method="GET" action="{{ route('form-survey.index') }}" class="flex flex-wrap gap-3 items-end">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1">Cari Kode Survey, Kode Agen, atau Nama Agen</label>
+                    <input type="text" name="search" value="{{ $search ?? '' }}"
+                        placeholder="Masukkan kata kunci pencarian..."
+                        class="w-full border border-red-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-400">
                 </div>
+                <div class="flex gap-2">
+                    <button type="submit"
+                        class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+                        🔍 Cari
+                    </button>
+                    @if(!empty($search))
+                        <a href="{{ route('form-survey.index') }}"
+                            class="bg-white border border-red-200 text-gray-500 hover:border-red-400 hover:text-red-500 text-sm font-semibold px-4 py-2 rounded-lg transition">
+                            ✕ Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        {{-- Tabel --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+            <div class="px-5 py-4 border-b border-red-50 flex items-center justify-between">
+                <h3 class="font-bold text-gray-800 text-sm">
+                    Daftar Survey Agen
+                    <span class="ml-2 text-xs font-normal text-gray-400">({{ $surveys->total() }} data)</span>
+                </h3>
+                <a href="{{ route('form-survey.scan-qr') }}" 
+                class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+                    Scan QR
+                </a>
+                <!-- <a href="{{ route('form-survey.form') }}" 
+                   class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                    + Buat Survey Baru
+                </a> -->
             </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-red-50 text-left">
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide w-16">No</th>
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide">Kode Survey</th>
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide">Kode Agen</th>
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide">Nama Agen</th>
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide">Sales</th>
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide text-center">Status Klaim</th>
+                            <th class="px-4 py-3 text-xs font-700 text-red-500 uppercase tracking-wide text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-red-50">
+                        @forelse($surveys as $index => $survey)
+                        <tr class="hover:bg-red-50/40 transition">
+                            <td class="px-4 py-3 text-gray-400 text-xs text-center">
+                                {{ $surveys->firstItem() + $index }}
+                            </td>
+                            <td class="px-4 py-3 font-mono text-xs text-gray-600">
+                                {{ $survey->kode_survey }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-600 text-xs">
+                                {{ $survey->kode_agen }}
+                            </td>
+                            <td class="px-4 py-3 font-medium text-gray-800">
+                                {{ $survey->nama_agen }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-600">
+                                {{ optional($survey->details->first())->nama_sales ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                @if($survey->status_klaim_hadiah == 1)
+                                    <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-600 px-2 py-0.5 rounded-full">
+                                        ✓ Sudah
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-600 px-2 py-0.5 rounded-full">
+                                        ✗ Belum
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <a href="{{ route('form-survey.detail', $survey->kode_survey) }}"
+                                    class="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                                    Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-12 text-center text-gray-400 text-sm">
+                                @if(!empty($search))
+                                    Tidak ada survey yang cocok dengan pencarian "{{ $search }}"
+                                @else
+                                    Belum ada data survey agen
+                                @endif
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Pagination --}}
+            @if($surveys->hasPages())
+            <div class="px-5 py-4 border-t border-red-50">
+                {{ $surveys->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

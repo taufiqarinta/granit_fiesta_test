@@ -78,26 +78,26 @@
                         <!-- Statistik -->
                         <div class="statistik flex flex-wrap gap-4 mb-4">
                             <div class="stat-item flex items-center gap-2">
-                                <strong class="text-sm">Total</strong> 
+                                <strong class="text-sm">Total Undangan</strong> 
                                 <span id="totalPeserta" class="badge bg-gray-600 text-white px-3 py-1 rounded-full text-xs font-bold">0</span>
                             </div>
                             <div class="stat-item flex items-center gap-2">
-                                <strong class="text-sm">Hadir</strong> 
+                                <strong class="text-sm">Jumlah Hadir</strong> 
                                 <span id="totalHadir" class="badge bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">0</span>
                             </div>
                             <div class="stat-item flex items-center gap-2">
-                                <strong class="text-sm">Tidak</strong> 
+                                <strong class="text-sm">Jumlah Belum Hadir</strong> 
                                 <span id="totalTidakHadir" class="badge bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold">0</span>
                             </div>
                             <div class="stat-item flex items-center gap-2">
-                                <strong class="text-sm">Total Kehadiran</strong> 
+                                <strong class="text-sm">Total Kehadiran Peserta</strong> 
                                 <span id="totalJumlahKehadiran" class="badge bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">0</span>
                             </div>
                         </div>
 
                         <!-- Search Bar -->
                         <div class="flex gap-3 items-center">
-                            <input type="text" id="searchInput" placeholder="Cari nama toko/agen, PIC, alamat, kota..." 
+                            <input type="text" id="searchInput" placeholder="Cari nama pelanggan/agen, PIC, alamat, kota..." 
                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <button id="clearBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
                                 Clear
@@ -114,8 +114,8 @@
                                     <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: center; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 100px;">Jumlah Hadir</th>
                                     <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: center; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; right: 0; background: #f9fafb; z-index: 30; min-width: 80px;">Hadir</th>
                                     <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 100px;">Tipe</th>
-                                    <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 120px;">Kode Toko</th>
-                                    <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 200px;">Nama Toko</th>
+                                    <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 120px;">Kode Pelanggan</th>
+                                    <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 200px;">Nama Pelanggan</th>
                                     <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 150px;">PIC</th>
                                     <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 120px;">Nomor PIC</th>
                                     <th style="border: 1px solid #e5e7eb; padding: 12px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; min-width: 120px;">Kota</th>
